@@ -1,10 +1,13 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Raven.Client.Documents;
+using Raven.Identity;
+using SaaSBase.Extensions;
+using SaaSBase.Models;
 
 namespace SaaSBase
 {
@@ -20,6 +23,18 @@ namespace SaaSBase
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // Add RavenDB and identity.
+            var databaseName = "saas_tenet1";
+            var docStore = new DocumentStore
+            {
+                Urls = new string[] { "http://localhost:8081" },
+                Database = databaseName
+            };
+            docStore.Initialize().EnsureExists();
+
+            services
+                .AddRavenDbAsyncSession(docStore)
+                .AddRavenDbIdentity<AppUser>();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
             // In production, the React files will be served from this directory
