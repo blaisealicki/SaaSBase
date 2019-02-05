@@ -24,16 +24,10 @@ namespace SaaSBase
         public void ConfigureServices(IServiceCollection services)
         {
             // Add RavenDB and identity.
-            var databaseName = "saas_tenet1";
-            var docStore = new DocumentStore
-            {
-                Urls = new string[] { "http://localhost:8081" },
-                Database = databaseName
-            };
-            docStore.Initialize().EnsureExists();
+            var store = RavenExtensions.Store;
 
             services
-                .AddRavenDbAsyncSession(docStore)
+                .AddRavenDbAsyncSession(store)
                 .AddRavenDbIdentity<AppUser>();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 

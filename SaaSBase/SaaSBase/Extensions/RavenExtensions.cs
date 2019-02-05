@@ -1,12 +1,13 @@
 ﻿using Raven.Client.Documents;
 using SaaSBase.Models;
+using System;
 using System.Linq;
 
 namespace SaaSBase.Extensions
 {
     public static class RavenExtensions
     {
-        public static IDocumentStore EnsureExists(this IDocumentStore store)
+        private static IDocumentStore EnsureExists(this IDocumentStore store)
         {
             try
             {
@@ -22,6 +23,21 @@ namespace SaaSBase.Extensions
                     DatabaseName = store.Database
                 }));
             }
+
+            return store;
+        }
+
+        private static Lazy<IDocumentStore> store = new Lazy<IDocumentStore>(CreateStore);
+
+        public static IDocumentStore Store => store.Value;
+
+        private static IDocumentStore CreateStore()
+        {
+            IDocumentStore store = new DocumentStore()
+            {
+                Urls = new[] { "http://localhost:8081" },
+                Database = "saas_tenet1"
+            }.Initialize().EnsureExists();
 
             return store;
         }
